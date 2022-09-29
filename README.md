@@ -11,7 +11,7 @@
 一个App底下的同一个userTag对应的userId是一致的，这个接口会返回一样的值。
 
 ```http
-https://cos.kevinc.ltd:8082/user/createAppUser
+POST https://cos.kevinc.ltd:8082/user/createAppUser
 ```
 
 ### Request
@@ -49,7 +49,7 @@ getLast --从上次最后一个帧+1开始继续传--> upload
 提交一些必要的元信息，用于创建文件的句柄。需要在头部附带UserId的信息。
 
 ```http
-https://cos.kevinc.ltd:8082/file/createFileEntry
+POST https://cos.kevinc.ltd:8082/file/createFileEntry
 
 X-UserId 1111111
 ```
@@ -99,7 +99,7 @@ protection字段有4个取值：
 
 验证该字段请使用KCos对外公示的公钥。先将secret的值反base64，得到字节序列，将该字节序列使用RSA解密，解密后即得到了userTag的二进制表示。此时将userTag进行UTF8解码，对比json中附带的userTag，如果一致，就验证通过。
 
-公钥如下：（可能会不定期更新，更新后老密钥会继续使用3个月，直至用户完全更新）
+公钥如下：（可能会不定期更新）
 
 ```
 -----BEGIN PUBLIC KEY-----
@@ -143,7 +143,7 @@ nextRequestedFrame表示下一次需要进行传送的帧标号。是一个uint3
 将文件分为1MB的包，进行发送，每个文件块最大1MB。
 
 ```http
-https://cos.kevinc.ltd:8082/file/upload?fileId=xxx&seqNumber=1
+PUT https://cos.kevinc.ltd:8082/file/upload?fileId=xxx&seqNumber=1
 
 X-UserId 1111111
 ```
@@ -159,3 +159,19 @@ seqNumber表示文件块的顺序，以1为基准，每个包大小为1MB（除�
 ```
 
 nextRequestedFrame表示下一次需要进行传送的帧标号。是一个uint32类型，若这个值是0，表示传输过程已经结束了
+
+## 获取上传断点
+
+由于可能出现各种各样的问题导致上传中断，因此当上传中断时，可以通过该接口获取到上一次的断点文件块ID
+
+```http
+GET https://cos.kevinc.ltd:8082/file/lastFrameSeqNumber?fileId=xxxx
+```
+
+注意！此接口返回的是上一个成功上传的包的ID，那么下一个应该传的包，是这个接口获取到的ID + 1
+
+接口返回值比较粗暴：
+
+状态码400时，表示这个文件无需继续上传。
+
+状态200时，ResponseBody直接就是一个数字（没有Json，没有任何结构），表示上一个成功上传的包的序列号
