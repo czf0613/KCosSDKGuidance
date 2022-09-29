@@ -72,6 +72,43 @@ protection字段有4个取值：
 
 4，向指定地址构造请求后可见，将指定地址写在securityPayload中，这个地址必须为有效的https链接，并且在地址中不可以附带query parameter。服务器会向这个地址发送一个post请求，结构如下。返回状态码为2xx时，会允许下载，其他情况则不允许下载。
 
+```json
+{
+    "userTag": "xxxxxx",
+    "appId": "xxxxxxxxxxxx",
+    "fileId": 11,
+    "sha256": "xxxxxxxxxxx",
+    "fileSize": "xxxxxxxxxxxxx",
+    "mimeType": "application/octet-stream",
+    "secret": "xxxxxxxxxx"
+}
+```
+
+因为无法避免是不是有外人随便乱调用客户的服务器，因此客户收到请求之后，必须！！进行签名的校验！
+
+其中的secret字段，是使用KCos服务器的RSA私钥加密的结果，生成规则如下：对userTag进行UTF8编码得到字节序列，对该字节序列使用RSA加密，加密后的字节序列，经过base64之后，即为secret的值。 
+
+验证该字段请使用KCos对外公示的公钥。先将secret的值反base64，得到字节序列，将该字节序列使用RSA解密，解密后即得到了userTag的二进制表示。此时将userTag进行UTF8解码，对比json中附带的userTag，如果一致，就验证通过。
+
+公钥如下：（可能会不定期更新，更新后老密钥会继续使用3个月，直至用户完全更新）
+
+``` 
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuEitLDx0GHNxguMcLHT6
+bM93xhBQBsrH+QeHDgCSJQrNsG+vaT/e4sJ8TY1MmDxrw549QW5i67GUrkQ6NDBp
+VMzbYav4H9tVswOxYVO3N8DlNr2KyVS4t5VTWigEVgenUgVa6F0wBdus/lR4HbEV
+2tlV8ATysVt2MrOUQJopDhUUqnqOswHzKxTRPypkhmvOhvdbWFnLUEXopMrPOJNf
+tiroAljhh4QPoKYVtg8galDHaIoLRXC3q3Vle9q6PKNnq3ZPQlxWQ/dPz7B/kcQl
+hk1VBRN9YW4mdZyRqkCTyRf3smyYcErZnw4GHJ3AcaLq0ERAqbSwSSlkI/1cGKkn
+2R4A6YIpNTyZ+tktfuxQOBlQ/tv8YPmEEI7fP9RERFHuKbZTnaUs8qf3YnXutV3P
+7vO0F7fW/7beDdK5EwyhHKm3mPnpmuoBKLh8IXZUrgEfsAeFQ9nBeDjXcI2gg18R
+8lCOFNCvcYosb51lmFUed2T8vnWleKFKPZeF/0L0mkG85OQwd4K3CG1I+bmokk7S
+1K/rP6hnamGCdIFwy8fMNDz7UmTBTH6Qrrxf6BdAeWwkxW7wtjRAgwerOWN+Nf2/
+zjK4puH029/+amI9cHRAz5wCFv6zhEYtwYzvL4XiAS/s9NVVFBoi+fwtdqgtRifX
+ferbdmb9JUYR9pBxpasMYt8CAwEAAQ==
+-----END PUBLIC KEY-----
+```
+
 ### Response
 
 ```json
