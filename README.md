@@ -2,11 +2,11 @@
 
 鉴于我们维护能力实在有限，无法为所有的编程语言都提供相对应的SDK，因此开源出来SDK的接口，各语言可以利用HttpClient构造请求来完成对应的功能。
 
-访问接口，必须要在接口上附带X-AppId和X-AppKey字段，所有接口都要带上！后面所有的接口里不会再重复说明这个字段了。
+访问接口就必须要在接口上附带X-AppId和X-AppKey字段，所有接口都要带上！后面所有的接口里不会再重复说明这个字段了。
 
 ## 用户管理
 
- Cos SDK的用户与调用方的客户ID是不一致的，需要用一个接口将这两个数据联系起来。只要客服提供一个userTag，服务端返回一个uint类型的userId。
+ Cos SDK的用户与调用方的客户ID是不一致的，需要用一个接口将这两个数据联系起来。只要客户提供一个userTag，服务端返回一个uint32类型的userId。
 
 一个App底下的同一个userTag对应的userId是一致的，这个接口会返回一样的值。
 
@@ -34,6 +34,15 @@ https://cos.kevinc.ltd:8082/user/createAppUser
 ## 文件管理
 
 文件上传的流程，必须要先创建文件的句柄，拿到文件的分块信息后，再进行上传。
+
+```mermaid
+graph LR;
+newFile(新文件) --> createEntry[创建文件句柄]
+createEntry --拿到文件ID与总块数--> upload[上传分块]
+upload --服务端表示nextFrame为0--> success
+break[文件上传过程中断] --> getLast[获取上一次传送的最后一个帧ID]
+getLast --从上次最后一个帧+1开始继续传--> upload
+```
 
 ## 创建文件句柄
 
@@ -92,7 +101,7 @@ protection字段有4个取值：
 
 公钥如下：（可能会不定期更新，更新后老密钥会继续使用3个月，直至用户完全更新）
 
-``` 
+```
 -----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuEitLDx0GHNxguMcLHT6
 bM93xhBQBsrH+QeHDgCSJQrNsG+vaT/e4sJ8TY1MmDxrw549QW5i67GUrkQ6NDBp
