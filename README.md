@@ -98,7 +98,9 @@ protection字段有4个取值：
 
 因为无法避免是不是有外人随便乱调用客户的服务器，因此客户收到请求之后，必须！！进行签名的校验！
 
-其中的secret字段，是使用KCos服务器的RSA私钥加密的结果，生成规则如下：对fileBelongsToUserTag进行UTF8编码得到字节序列，对该字节序列使用RSA加密，加密后的字节序列，经过base64之后，即为secret的值。 
+其中的secret字段，是使用KCos服务器的RSA私钥加密的结果，RSA加密的密钥长度为4096bit，使用PKCS12密钥格式，数据填充格式为OAEP-SHA256。（请自行查询调用方的编程语言是否有对应的实现，此处不过多赘述原理）
+
+生成规则如下：对fileBelongsToUserTag进行UTF8编码得到字节序列，对该字节序列使用RSA加密，加密后的字节序列，经过base64之后，即为secret的值。 
 
 验证该字段请使用KCos对外公示的公钥。先将secret的值反base64，得到字节序列，将该字节序列使用RSA解密，解密后即得到了fileBelongsToUserTag的二进制表示。此时将fileBelongsToUserTag进行UTF8解码，对比json中附带的fileBelongsToUserTag，如果一致，就验证通过。
 
@@ -177,4 +179,28 @@ GET https://cos.kevinc.ltd:8082/file/lastFrameSeqNumber?fileId=xxxx
 
 状态码400时，表示这个文件无需继续上传。
 
-状态200时，ResponseBody直接就是一个数字（没有Json，没有任何结构），表示上一个成功上传的包的序列号
+状态200时，ResponseBody直接就是一个数字（没有Json，没有任何结构），表示上一个成功上传的包的序列号。
+
+## 下载文件
+
+下载部分的功能是十分简单的，只要你有了文件ID，就可以直接下载了，对应的url即为
+
+```http
+GET https://cos.kevinc.ltd:8082/file/download?fileId=11&password=xxxxxx
+```
+
+其中，password字段是用于特殊的权限校验，具体参看前面的FileEntry部分，有进行描述。password字段可以不提供。
+
+当file entry的protection为3的时候，password字段填入密码即可。
+
+当file entry的protection为4的时候，此处可以附带额外的校验信息用于发送给第三方鉴权服务器，注意要进行url encode！
+
+### Range Request支持
+
+本下载链接支持Range控制，因此，您可以先使用HEAD请求发送到该下载url，服务器会告诉您文件的content-length，contentType，contentDisposition，acceptRange，ETag，lastModified等等头部。
+
+有了这些信息之后，就可以发起Range Request了，我们的服务器支持市面上绝大部分的浏览器下载、安卓下载器以及各种IDM之类的工具。
+
+为了保证服务器的下载性能，我们会对Range头进行限宽，即便是给定了一个非常大的Range，服务器也会强制变为4MB为一个partial content。因此建议客户端实现下载的时候，分段大小控制在1-2MB比较合适。
+
+具体关于断点续传的功能，也可以使用Range Request实现。
