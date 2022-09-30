@@ -90,8 +90,8 @@ protection字段有4个取值：
     "visitorProvidedMessage": "xxxxx", //下载接口里的password字段可以被此处灵活使用
     "fileId": 11,
     "sha256": "xxxxxxxxxxx",
-    "fileSize": "xxxxxxxxxxxxx",
-    "mimeType": "application/octet-stream",
+    "fileSize": 0,
+    "mimeType": "xxxxxxxx",
     "secret": "xxxxxxxxxx"
 }
 ```
