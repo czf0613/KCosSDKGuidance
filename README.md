@@ -197,10 +197,10 @@ GET https://cos.kevinc.ltd:8082/file/download?fileId=11&password=xxxxxx
 
 ### Range Request支持
 
-本下载链接支持Range控制，因此，您可以先使用HEAD请求发送到该下载url，服务器会告诉您文件的content-length，contentType，contentDisposition，acceptRange，ETag，lastModified等等头部。
+本下载链接支持Range控制，因此，您可以先使用HEAD请求发送到该下载url，服务器会告诉您文件的ContentLength，ContentType，ContentDisposition，AcceptRange，ETag，LastModified等等头部信息。
 
 有了这些信息之后，就可以发起Range Request了，我们的服务器支持市面上绝大部分的浏览器下载、安卓下载器以及各种IDM之类的工具。
 
 为了保证服务器的下载性能，我们会对Range头进行限宽，即便是给定了一个非常大的Range，服务器也会强制变为4MB为一个partial content。因此建议客户端实现下载的时候，分段大小控制在1-2MB比较合适。
 
-具体关于断点续传的功能，也可以使用Range Request实现。
+具体关于断点续传的功能，也可以使用Range Request实现，请参看MDN网站的说明。~~~~
