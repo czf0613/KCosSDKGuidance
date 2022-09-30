@@ -187,13 +187,23 @@ GET https://cos.kevinc.ltd:8082/file/lastFrameSeqNumber?fileId=xxxx
 
 ```http
 GET https://cos.kevinc.ltd:8082/file/download?fileId=11&password=xxxxxx
+
+X-UserId 1111111
 ```
+
+X-UserId和password是两个重要的校验字段。
+
+### password字段
 
 其中，password字段是用于特殊的权限校验，具体参看前面的FileEntry部分，有进行描述。password字段可以不提供。
 
 当file entry的protection为3的时候，password字段填入密码即可。
 
-当file entry的protection为4的时候，此处可以附带额外的校验信息用于发送给第三方鉴权服务器，注意要进行url encode！
+当file entry的protection为4的时候，此处可以附带额外的校验信息用于发送给第三方鉴权服务器，注意要进行url encode。
+
+### X-UserId字段
+
+X-UserId一样是可选字段，当file entry的protection为0，1，3时，X-UserId可以不提供，服务器也会正常开放权限。
 
 ### Range Request支持
 
@@ -203,4 +213,4 @@ GET https://cos.kevinc.ltd:8082/file/download?fileId=11&password=xxxxxx
 
 为了保证服务器的下载性能，我们会对Range头进行限宽，即便是给定了一个非常大的Range，服务器也会强制变为4MB为一个partial content。因此建议客户端实现下载的时候，分段大小控制在1-2MB比较合适。
 
-具体关于断点续传的功能，也可以使用Range Request实现，请参看MDN网站的说明。~~~~
+具体关于断点续传的功能，也可以使用Range Request实现，请参看MDN网站的说明。
