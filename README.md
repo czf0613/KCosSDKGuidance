@@ -83,8 +83,11 @@ protection字段有4个取值：
 
 ```json
 {
-    "userTag": "xxxxxx",
-    "appId": "xxxxxxxxxxxx",
+    "fileBelongsToUserTag": "xxxxxx",
+    "fileBelongsToAppId": "xxxxxxxxxxxx",
+    "visitorUserTag": "xxxx",
+    "visitorAppId": "xxxxxxx",
+    "visitorProvidedMessage": "xxxxx", //下载接口里的password字段可以被此处灵活使用
     "fileId": 11,
     "sha256": "xxxxxxxxxxx",
     "fileSize": "xxxxxxxxxxxxx",
@@ -95,9 +98,9 @@ protection字段有4个取值：
 
 因为无法避免是不是有外人随便乱调用客户的服务器，因此客户收到请求之后，必须！！进行签名的校验！
 
-其中的secret字段，是使用KCos服务器的RSA私钥加密的结果，生成规则如下：对userTag进行UTF8编码得到字节序列，对该字节序列使用RSA加密，加密后的字节序列，经过base64之后，即为secret的值。 
+其中的secret字段，是使用KCos服务器的RSA私钥加密的结果，生成规则如下：对fileBelongsToUserTag进行UTF8编码得到字节序列，对该字节序列使用RSA加密，加密后的字节序列，经过base64之后，即为secret的值。 
 
-验证该字段请使用KCos对外公示的公钥。先将secret的值反base64，得到字节序列，将该字节序列使用RSA解密，解密后即得到了userTag的二进制表示。此时将userTag进行UTF8解码，对比json中附带的userTag，如果一致，就验证通过。
+验证该字段请使用KCos对外公示的公钥。先将secret的值反base64，得到字节序列，将该字节序列使用RSA解密，解密后即得到了fileBelongsToUserTag的二进制表示。此时将fileBelongsToUserTag进行UTF8解码，对比json中附带的fileBelongsToUserTag，如果一致，就验证通过。
 
 公钥如下：（可能会不定期更新）
 
