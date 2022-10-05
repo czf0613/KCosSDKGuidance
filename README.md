@@ -98,11 +98,9 @@ protection字段有4个取值：
 
 因为无法避免是不是有外人随便乱调用客户的服务器，因此客户收到请求之后，必须！！进行签名的校验！
 
-其中的secret字段，是使用KCos服务器的RSA私钥加密的结果，RSA加密的密钥长度为4096bit，使用PKCS12密钥格式，数据填充格式为OAEP-SHA256。（请自行查询调用方的编程语言是否有对应的实现，此处不过多赘述原理）
+其中的secret字段，生成规则如下：
 
-生成规则如下：对fileBelongsToUserTag进行UTF8编码得到字节序列，对该字节序列使用RSA加密，加密后的字节序列，经过base64之后，即为secret的值。 
-
-验证该字段请使用KCos对外公示的公钥。先将secret的值反base64，得到字节序列，将该字节序列使用RSA解密，解密后即得到了fileBelongsToUserTag的二进制表示。此时将fileBelongsToUserTag进行UTF8解码，对比json中附带的fileBelongsToUserTag，如果一致，就验证通过。
+拿fileBelongsToUserTag进行UTF8编码，拿到字节序列后，进行RSA sign with SHA256，生成的签名字符串放在此处。客户收到之后，使用对应的公钥即可进行签名校验。
 
 公钥如下：（可能会不定期更新）
 
