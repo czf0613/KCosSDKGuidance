@@ -100,7 +100,9 @@ protection字段有4个取值：
 
 其中的secret字段，生成规则如下：
 
-拿fileBelongsToUserTag进行UTF8编码，拿到字节序列后，进行RSA sign with SHA256，生成的签名字符串放在此处。客户收到之后，使用对应的公钥即可进行签名校验。
+拿fileBelongsToUserTag进行UTF8编码，拿到字节序列后，进行RSA sign with SHA256，RSASignaturePaddingMode为PKCS1（请自行查阅各语言的本地实现，此处不过多赘述）
+
+客户收到之后，使用对应的公钥即可进行签名校验。
 
 公钥如下：（可能会不定期更新）
 
