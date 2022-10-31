@@ -4,6 +4,8 @@
 
 访问接口就必须要在接口上附带X-AppId和X-AppKey字段，所有接口都要带上！后面所有的接口里不会再重复说明这个字段了。
 
+！！目前该SDK正在申请接入全球的CDN分发，url的端口号可能会发生变化。目前，443与8082端口都可使用，在将来（时间未定）会淘汰掉8082端口，请及时作出修改。
+
 ## 用户管理
 
  Cos SDK的用户与调用方的客户ID是不一致的，需要用一个接口将这两个数据联系起来。只要客户提供一个userTag，服务端返回一个uint32类型的userId。
@@ -11,7 +13,7 @@
 一个App底下的同一个userTag对应的userId是一致的，这个接口会返回一样的值。
 
 ```http
-POST https://cos.kevinc.ltd:8082/user/createAppUser
+POST https://cos.kevinc.ltd/user/createAppUser
 ```
 
 ### Request
@@ -49,7 +51,7 @@ getLast --从上次最后一个帧+1开始继续传--> upload
 提交一些必要的元信息，用于创建文件的句柄。需要在头部附带UserId的信息。
 
 ```http
-POST https://cos.kevinc.ltd:8082/file/createFileEntry
+POST https://cos.kevinc.ltd/file/createFileEntry
 
 X-UserId 1111111
 ```
@@ -148,7 +150,7 @@ nextRequestedFrame表示下一次需要进行传送的帧标号。是一个uint3
 将文件分为1MB的包，进行发送，每个文件块最大1MB。
 
 ```http
-PUT https://cos.kevinc.ltd:8082/file/upload?fileId=xxx&seqNumber=1
+PUT https://cos.kevinc.ltd/file/upload?fileId=xxx&seqNumber=1
 
 X-UserId 1111111
 ```
@@ -170,7 +172,7 @@ nextRequestedFrame表示下一次需要进行传送的帧标号。是一个uint3
 由于可能出现各种各样的问题导致上传中断，因此当上传中断时，可以通过该接口获取到上一次的断点文件块ID
 
 ```http
-GET https://cos.kevinc.ltd:8082/file/lastFrameSeqNumber?fileId=xxxx
+GET https://cos.kevinc.ltd/file/lastFrameSeqNumber?fileId=xxxx
 ```
 
 注意！此接口返回的是上一个成功上传的包的ID，那么下一个应该传的包，是这个接口获取到的ID + 1
@@ -186,7 +188,7 @@ GET https://cos.kevinc.ltd:8082/file/lastFrameSeqNumber?fileId=xxxx
 下载部分的功能是十分简单的，只要你有了文件ID，就可以直接下载了，对应的url即为
 
 ```http
-GET https://cos.kevinc.ltd:8082/file/download?fileId=11&password=xxxxxx
+GET https://cos.kevinc.ltd/file/download?fileId=11&password=xxxxxx
 
 X-UserId 1111111
 ```
